@@ -15,6 +15,13 @@ public enum TokenType {
     NullLiteral("NullLiteral"),
     BooleanLiteral("BooleanLiteral"),
 
+    ArithmeticOperator("ArithmeticOperator"),
+    LogicalOperator("LogicalOperator"),
+    ComparisonOperator("ComparisonOperator"),
+    Assignment("Assignment"),
+    BitwiseOperator("BitwiseOperator"),
+
+
     RegularExpressionLiteral("RegularExpressionLiteral"),
     TemplateLiteral("TemplateLiteral"),
 
