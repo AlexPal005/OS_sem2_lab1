@@ -1,9 +1,26 @@
 // main code
 /*check multiline comments*/
+const value1 = 314;
 const string = "hello";
 let string1 = 'good';
-let a = 5;
+let a = 5.45435;
+
+if(2n > 3n){
+        a = 5;
+}
+let a1 = 5.3;
+let c = a + b;
 const b = "bye";
+
+const g = a >= b;
+
+const bigInt = 12432n;
+
+g = undefined;
+c = null;
+
+let boolLiteral1 = true;
+let boolLiteral2 = false
 const obj = { key: "value" };
 async function hello(){
     if(a === 5){
@@ -13,4 +30,5 @@ async function hello(){
         console.log("hi");
     }
     let type = await promise;
+    let type2 = await promise;
 }

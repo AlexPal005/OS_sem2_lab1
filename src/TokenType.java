@@ -10,6 +10,7 @@ public enum TokenType {
     StringLiteral("StringLiteral"),
     NullLiteral("NullLiteral"),
     BooleanLiteral("BooleanLiteral"),
+    UndefinedLiteral("UndefinedLiteral"),
 
     ArithmeticOperator("ArithmeticOperator"),
     LogicalOperator("LogicalOperator"),
