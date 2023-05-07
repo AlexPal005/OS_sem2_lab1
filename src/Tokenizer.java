@@ -5,14 +5,19 @@ public class Tokenizer {
 
     private final ArrayList<String> keyWords =
             new ArrayList<>(Arrays.asList("break", "case", "catch", "class", "const", "continue", "debugger", "default",
-                    "delete", "do", "else", "export", "extends", "false", "finally", "for", "function", "if", "import",
-                    "in", "instanceof", "new", "null", "return", "super", "switch", "this", "throw", "true", "try", "typeof",
+                    "delete", "do", "else", "export", "extends", "finally", "for", "function", "if", "import",
+                    "in", "instanceof", "new", "null", "return", "super", "switch", "this", "throw", "try", "typeof",
                     "var", "void", "while", "with", "let", "static", "yield", "await", "as", "async", "eval", "from", "get",
                     "of", "set", "implements", "package", "protected", "static", "interface", "private", "public"));
 
     private final ArrayList<Character> punctuators = new ArrayList<>(
-            Arrays.asList('(', ')', '{', '}', '[', ']', ':', ';', ',', '?')
-    );
+            Arrays.asList('(', ')', '{', '}', '[', ']', ':', ';', ',', '?'));
+
+    private final ArrayList<Character> arithmeticOperators = new ArrayList<>(
+            Arrays.asList('+', '-', '*', '/', '%'));
+
+    private final ArrayList<String> comparisonOperators = new ArrayList<>(
+            Arrays.asList("==", "===", ">", ">=", "<", "<=", "!=", "!=="));
     private final String code;
     //current index
     private int i;
@@ -55,6 +60,7 @@ public class Tokenizer {
                 tokens.add(token);
                 continue;
             }
+            checkSpecialTokens();
 
             //check string literal
             if (code.charAt(i) == '"') {
@@ -63,6 +69,10 @@ public class Tokenizer {
             } else if (code.charAt(i) == '\'') {
                 checkStringLiteral('\'');
                 continue;
+            }
+            //check numbers
+            if (Character.isDigit(code.charAt(i))) {
+                checkNumber();
             }
 
             // check keywords
@@ -99,7 +109,7 @@ public class Tokenizer {
     private void checkKeyWord() {
         StringBuilder currWord = new StringBuilder();
         while (code.charAt(i) != '=' && code.charAt(i) != '+' && code.charAt(i) != '-' && code.charAt(i) != ' '
-                && !punctuators.contains(code.charAt(i))) {
+                && !punctuators.contains(code.charAt(i)) && code.charAt(i) != '\n' && code.charAt(i) != '\t') {
 
             currWord.append(code.charAt(i));
             if (keyWords.contains(currWord.toString())) {
@@ -112,12 +122,48 @@ public class Tokenizer {
             }
             i++;
         }
+        //check boolean literal
+        if (currWord.toString().equals("true") || currWord.toString().equals("false")) {
+            tokens.add(new Token(TokenType.BooleanLiteral, "\"" + currWord + "\""));
+            currWord.setLength(0);
+        }
+        // check identifier
         if (currWord.length() != 0) {
             tokens.add(new Token(TokenType.Identifier, "\"" + currWord + "\""));
         }
     }
 
-    private Token checkNumber() {
-        return null;
+    private void checkNumber() {
+        StringBuilder number = new StringBuilder();
+        while (code.charAt(i) != '=' && code.charAt(i) != '+'
+                && code.charAt(i) != '-' && code.charAt(i) != ' ' && !punctuators.contains(code.charAt(i))) {
+
+            number.append(code.charAt(i));
+
+            if (Character.isLetter(code.charAt(i)) && code.charAt(i) == 'n') {
+                i++;
+                tokens.add(new Token(TokenType.BigIntLiteral, "\"" + number + "\""));
+                return;
+            }
+
+            i++;
+        }
+        tokens.add(new Token(TokenType.NumberLiteral, "\"" + number + "\""));
+    }
+
+    private void checkSpecialTokens() {
+        if (arithmeticOperators.contains(code.charAt(i))) {
+            tokens.add(new Token(TokenType.ArithmeticOperator, "\"" + code.charAt(i) + "\""));
+            i++;
+            return;
+        }
+        StringBuilder string = new StringBuilder();
+        while (!Character.isLetter(code.charAt(i)) && code.charAt(i) != '\n' && code.charAt(i) != ' ') {
+            string.append(code.charAt(i));
+            i++;
+        }
+        if (string.length() != 0 && comparisonOperators.contains(string.toString())) {
+            tokens.add(new Token(TokenType.ComparisonOperator, "\"" + string + "\""));
+        }
     }
 }

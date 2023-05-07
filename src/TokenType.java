@@ -3,11 +3,7 @@ public enum TokenType {
     KeyWord("KeyWord"),
     Punctuator("Punctuator"),
 
-    //Numeric literal
-    DecimalLiteral("DecimalLiteral"),
-    HexIntegerLiteral("HexIntegerLiteral"),
-    OctalIntegerLiteral("OctalIntegerLiteral"),
-    BinaryLiteral("BinaryLiteral"),
+    NumberLiteral("NumberLiteral"),
     BigIntLiteral("BigIntLiteral"),
 
 

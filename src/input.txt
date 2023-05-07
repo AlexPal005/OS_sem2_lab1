@@ -1,9 +1,22 @@
 // main code
 /*check multiline comments*/
+const value1 = 314;
 const string = "hello";
 let string1 = 'good';
-let a = 5;
+let a = 5.45435;
+let a1 = 5.3;
+let c = a + b;
 const b = "bye";
+
+const g = a >= b;
+
+const bigInt = 12432n;
+
+let boolLiteral1 = true;
+let boolLiteral2 = false
+    if(2n > 3n){
+        a = 5;
+    }
 const obj = { key: "value" };
 async function hello(){
     if(a === 5){
