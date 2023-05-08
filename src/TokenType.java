@@ -18,6 +18,10 @@ public enum TokenType {
     Assignment("Assignment"),
     BitwiseOperator("BitwiseOperator"),
 
+    Arrow("Arrow"),
+
+    SpreadOperator("SpreadOperator"),
+
 
     RegularExpressionLiteral("RegularExpressionLiteral"),
     TemplateLiteral("TemplateLiteral"),
@@ -25,6 +29,7 @@ public enum TokenType {
     None("None");
 
     private final String tokenValue;
+
     TokenType(String tokenValue) {
         this.tokenValue = tokenValue;
     }

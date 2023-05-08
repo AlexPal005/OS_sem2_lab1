@@ -18,6 +18,12 @@ public class Tokenizer {
 
     private final ArrayList<String> comparisonOperators = new ArrayList<>(
             Arrays.asList("==", "===", ">", ">=", "<", "<=", "!=", "!=="));
+
+    private final ArrayList<String> logicalOperators = new ArrayList<>(
+            Arrays.asList("||", "&&", "!"));
+
+    private final ArrayList<String> bitwiseOperators = new ArrayList<>(
+            Arrays.asList("<<", ">>", ">>>", "&", "|", "^", "~"));
     private final String code;
     //current index
     private int i;
@@ -30,32 +36,19 @@ public class Tokenizer {
     }
 
     public void runTokenizer() {
-        for (i = 0; i < code.length(); i++ ) {
+        for (i = 0; i < code.length(); i++) {
             // skip spaces
             if (code.charAt(i) == ' ') {
                 continue;
             }
-            //skip comments
-            if (code.charAt(i) == '/' && code.charAt(i + 1) == '/') {
-                while (code.charAt(i) != '\n') {
-                    i++;
-                }
-                i++;
-            }
-            if (code.charAt(i) == '/' && code.charAt(i + 1) == '*') {
-                i = i + 2;
-                while (code.charAt(i) != '*' && code.charAt(i + 1) != '/') {
-                    i++;
-                }
-                i = i + 2;
-            }
+            skipComments();
             //skip \n
             if (code.charAt(i) == '\n') {
                 continue;
             }
 
             // check single char token
-            Token token = checkSingleCharToken(code.charAt(i));
+            Token token = checkSingleCharToken();
             if (token != null) {
                 tokens.add(token);
                 continue;
@@ -88,12 +81,34 @@ public class Tokenizer {
 
     }
 
-    private Token checkSingleCharToken(char symbol) {
-        if (punctuators.contains(symbol)) {
-            return new Token(TokenType.Punctuator, "\"" + symbol + "\"");
-        } else {
-            return null;
+    private void skipComments() {
+        //skip comments
+        if (code.charAt(i) == '/' && code.charAt(i + 1) == '/') {
+            while (code.charAt(i) != '\n') {
+                i++;
+            }
+            i++;
         }
+        if (code.charAt(i) == '/' && code.charAt(i + 1) == '*') {
+            i = i + 2;
+            while (code.charAt(i) != '*' && code.charAt(i + 1) != '/') {
+                i++;
+            }
+            i = i + 2;
+        }
+    }
+
+    private Token checkSingleCharToken() {
+        if (punctuators.contains(code.charAt(i))) {
+            return new Token(TokenType.Punctuator, "\"" + code.charAt(i) + "\"");
+        } else if (code.charAt(i) == '.') {
+            if (code.charAt(i + 1) == '.' && code.charAt(i + 2) == '.') {
+                i = i + 2;
+                return new Token(TokenType.SpreadOperator, "\"" + "..." + "\"");
+            } else {
+                return new Token(TokenType.Punctuator, "\"" + code.charAt(i) + "\"");
+            }
+        } else return null;
     }
 
     private void checkStringLiteral(char mark) {
@@ -113,7 +128,9 @@ public class Tokenizer {
     private Token checkKeyWord() {
         StringBuilder currWord = new StringBuilder();
         while (code.charAt(i) != '=' && code.charAt(i) != '+' && code.charAt(i) != '-' && code.charAt(i) != ' '
-                && code.charAt(i) != '\n' && code.charAt(i) != '\t' && !punctuators.contains(code.charAt(i))) {
+                && code.charAt(i) != '\n' && code.charAt(i) != '\t' && !punctuators.contains(code.charAt(i))
+                && !logicalOperators.contains(code.charAt(i) + "") && !bitwiseOperators.contains(code.charAt(i) + "")
+                && code.charAt(i) != '.' ) {
             currWord.append(code.charAt(i));
             if (keyWords.contains(currWord.toString())) {
                 if (Character.isLetter(code.charAt(i + 1))) {
@@ -164,16 +181,39 @@ public class Tokenizer {
         }
         StringBuilder operator = new StringBuilder();
         int currIndex = i;
-        while (!Character.isLetter(code.charAt(currIndex)) && code.charAt(currIndex) != '\n'
+        while (!Character.isLetter(code.charAt(currIndex)) && !Character.isDigit(code.charAt(currIndex)) && code.charAt(currIndex) != '\n'
                 && code.charAt(currIndex) != ' ' && code.charAt(currIndex) != '\t') {
+
             operator.append(code.charAt(currIndex));
             currIndex++;
         }
+        //check comparison operators and assignment
         if (operator.length() != 0 && comparisonOperators.contains(operator.toString())) {
+
             tokens.add(new Token(TokenType.ComparisonOperator, "\"" + operator + "\""));
             i = currIndex;
+
+        } else if (operator.length() != 0 && operator.toString().equals("=")) {
+
+            tokens.add(new Token(TokenType.Assignment, "\"" + operator + "\""));
+            i = currIndex;
+
+        } else if (operator.length() != 0 && logicalOperators.contains(operator.toString())) {
+
+            tokens.add(new Token(TokenType.LogicalOperator, "\"" + operator + "\""));
+            i = currIndex;
+
+        } else if (operator.length() != 0 && bitwiseOperators.contains(operator.toString())) {
+
+            tokens.add(new Token(TokenType.BitwiseOperator, "\"" + operator + "\""));
+            i = currIndex;
+
+        } else if (operator.length() != 0 && operator.toString().equals("=>")) {
+
+            tokens.add(new Token(TokenType.Arrow, "\"" + operator + "\""));
+            i = currIndex;
+
         }
     }
-
 
 }
