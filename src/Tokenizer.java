@@ -1,3 +1,6 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -77,8 +80,26 @@ public class Tokenizer {
                 tokens.add(token1);
             }
         }
+        writeInFile();
         tokens.forEach(System.out::println);
 
+    }
+
+    private void writeInFile() {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("src/result.txt"));
+            tokens.forEach(token -> {
+                try {
+                    writer.write(token.toString() + "\n");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void skipComments() {
@@ -130,7 +151,7 @@ public class Tokenizer {
         while (code.charAt(i) != '=' && code.charAt(i) != '+' && code.charAt(i) != '-' && code.charAt(i) != ' '
                 && code.charAt(i) != '\n' && code.charAt(i) != '\t' && !punctuators.contains(code.charAt(i))
                 && !logicalOperators.contains(code.charAt(i) + "") && !bitwiseOperators.contains(code.charAt(i) + "")
-                && code.charAt(i) != '.' ) {
+                && code.charAt(i) != '.') {
             currWord.append(code.charAt(i));
             if (keyWords.contains(currWord.toString())) {
                 if (Character.isLetter(code.charAt(i + 1))) {
