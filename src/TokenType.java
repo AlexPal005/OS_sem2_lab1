@@ -16,7 +16,9 @@ public enum TokenType {
     LogicalOperator("LogicalOperator"),
     ComparisonOperator("ComparisonOperator"),
     Assignment("Assignment"),
+    AssignmentOperator("AssignmentOperator"),
     BitwiseOperator("BitwiseOperator"),
+    IncrDecrOperator("IncrDecrOperator"),
 
     Arrow("Arrow"),
 

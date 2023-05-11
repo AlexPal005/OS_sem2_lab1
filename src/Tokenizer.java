@@ -27,6 +27,9 @@ public class Tokenizer {
 
     private final ArrayList<String> bitwiseOperators = new ArrayList<>(
             Arrays.asList("<<", ">>", ">>>", "&", "|", "^", "~"));
+
+    private final ArrayList<String> assignmentOperators = new ArrayList<>(
+            Arrays.asList("+=", "-=", "*=", "/=", "%=", "**=", ">>=", ">>>=", "&=", "^=", "|=", "&&=", "||=", "??="));
     private final String code;
     //current index
     private int i;
@@ -56,6 +59,15 @@ public class Tokenizer {
                 tokens.add(token);
                 continue;
             }
+
+            //check numbers
+            if (Character.isDigit(code.charAt(i)) ||
+                    (code.charAt(i) == '-' && tokens.get(tokens.size() - 1).getTokenType() != TokenType.NumberLiteral)) {
+
+                checkNumber();
+                i--;
+                continue;
+            }
             checkSpecialTokens();
 
             //check string literal
@@ -68,12 +80,7 @@ public class Tokenizer {
                 i--;
                 continue;
             }
-            //check numbers
-            if (Character.isDigit(code.charAt(i))) {
-                checkNumber();
-                i--;
-                continue;
-            }
+
             // check keywords
             Token token1 = checkKeyWord();
             if (token1 != null) {
@@ -81,8 +88,6 @@ public class Tokenizer {
             }
         }
         writeInFile();
-        tokens.forEach(System.out::println);
-
     }
 
     private void writeInFile() {
@@ -181,6 +186,10 @@ public class Tokenizer {
 
     private void checkNumber() {
         StringBuilder number = new StringBuilder();
+        if (code.charAt(i) == '-') {
+            number.append(code.charAt(i));
+            i++;
+        }
         while (code.charAt(i) != '=' && code.charAt(i) != '+'
                 && code.charAt(i) != '-' && code.charAt(i) != ' ' && !punctuators.contains(code.charAt(i))) {
 
@@ -195,20 +204,20 @@ public class Tokenizer {
     }
 
     private void checkSpecialTokens() {
-        if (arithmeticOperators.contains(code.charAt(i))) {
-            tokens.add(new Token(TokenType.ArithmeticOperator, "\"" + code.charAt(i) + "\""));
-            i++;
-            return;
-        }
+
         StringBuilder operator = new StringBuilder();
         int currIndex = i;
-        while (!Character.isLetter(code.charAt(currIndex)) && !Character.isDigit(code.charAt(currIndex)) && code.charAt(currIndex) != '\n'
-                && code.charAt(currIndex) != ' ' && code.charAt(currIndex) != '\t') {
+        while (!Character.isLetter(code.charAt(currIndex))
+                && !Character.isDigit(code.charAt(currIndex))
+                && code.charAt(currIndex) != '\n'
+                && code.charAt(currIndex) != ' '
+                && code.charAt(currIndex) != '\t'
+                && !punctuators.contains(code.charAt(currIndex))) {
 
             operator.append(code.charAt(currIndex));
             currIndex++;
         }
-        //check comparison operators and assignment
+
         if (operator.length() != 0 && comparisonOperators.contains(operator.toString())) {
 
             tokens.add(new Token(TokenType.ComparisonOperator, "\"" + operator + "\""));
@@ -233,6 +242,21 @@ public class Tokenizer {
 
             tokens.add(new Token(TokenType.Arrow, "\"" + operator + "\""));
             i = currIndex;
+
+        } else if (operator.length() == 1 && arithmeticOperators.contains(operator.charAt(0))) {
+
+            tokens.add(new Token(TokenType.ArithmeticOperator, "\"" + operator + "\""));
+            i = currIndex - 1;
+
+        } else if (operator.length() != 0 && assignmentOperators.contains(operator.toString())) {
+
+            tokens.add(new Token(TokenType.AssignmentOperator, "\"" + operator + "\""));
+            i = currIndex;
+
+        } else if (operator.length() != 0 && (operator.toString().equals("++") || operator.toString().equals("--"))) {
+
+            tokens.add(new Token(TokenType.IncrDecrOperator, "\"" + operator + "\""));
+            i = currIndex - 1;
 
         }
     }
