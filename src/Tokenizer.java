@@ -14,7 +14,7 @@ public class Tokenizer {
                     "of", "set", "implements", "package", "protected", "static", "interface", "private", "public"));
 
     private final ArrayList<Character> punctuators = new ArrayList<>(
-            Arrays.asList('(', ')', '{', '}', '[', ']', ':', ';', ',', '?'));
+            Arrays.asList('(', ')', '{', '}', '[', ']', ':', ';', ','));
 
     private final ArrayList<Character> arithmeticOperators = new ArrayList<>(
             Arrays.asList('+', '-', '*', '/', '%'));
@@ -66,7 +66,8 @@ public class Tokenizer {
 
             //check numbers
             if (Character.isDigit(code.charAt(i)) ||
-                    (code.charAt(i) == '-' && tokens.get(tokens.size() - 1).getTokenType() != TokenType.NumberLiteral)) {
+                    (code.charAt(i) == '-' && tokens.get(tokens.size() - 1).getTokenType() != TokenType.NumberLiteral)
+                            && Character.isDigit(code.charAt(i + 1))) {
 
                 checkNumber();
                 i--;
@@ -75,21 +76,21 @@ public class Tokenizer {
 
             //check string literal
             if (code.charAt(i) == '"') {
-                if (!checkStringLiteral('"')) {
+                if (checkStringLiteral('"')) {
                     writeInFile();
                     return;
                 }
                 i--;
                 continue;
             } else if (code.charAt(i) == '\'') {
-                if (!checkStringLiteral('\'')) {
+                if (checkStringLiteral('\'')) {
                     writeInFile();
                     return;
                 }
                 i--;
                 continue;
             } else if (code.charAt(i) == '`') {
-                if (!checkStringLiteral('`')) {
+                if (checkStringLiteral('`')) {
                     writeInFile();
                     return;
                 }
@@ -110,6 +111,7 @@ public class Tokenizer {
             if (token1 != null) {
                 tokens.add(token1);
             }
+
         }
         writeInFile();
     }
@@ -195,14 +197,14 @@ public class Tokenizer {
                 i++;
                 if (code.charAt(i) == '\n') {
                     tokens.add(new Token(TokenType.Error, "Unfinished string literal"));
-                    return false;
+                    return true;
                 }
             }
             stringValue.append(code.charAt(i));
             i++;
             if (code.charAt(i) == '\n') {
                 tokens.add(new Token(TokenType.Error, "Unfinished string literal"));
-                return false;
+                return true;
             }
         } while (code.charAt(i) != mark);
 
@@ -210,7 +212,7 @@ public class Tokenizer {
         i++;
 
         tokens.add(new Token(TokenType.StringLiteral, stringValue.toString()));
-        return true;
+        return false;
     }
 
     private Token checkKeyWord() {
@@ -323,6 +325,16 @@ public class Tokenizer {
 
             tokens.add(new Token(TokenType.IncrDecrOperator, "\"" + operator + "\""));
             i = currIndex - 1;
+
+        } else if (operator.length() != 0 && operator.toString().equals("?")) {
+
+            tokens.add(new Token(TokenType.Punctuator, "\"" + operator + "\""));
+            i = currIndex;
+
+        } else if (operator.length() != 0 && operator.toString().equals("??")) {
+
+            tokens.add(new Token(TokenType.NullishCoalescing, "\"" + operator + "\""));
+            i = currIndex;
 
         }
     }

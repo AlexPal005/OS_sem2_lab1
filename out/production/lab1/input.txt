@@ -1,3 +1,4 @@
+= == >= ? ??= ; + -
 const string = "hello\n" + "frere";
 const regex = /ab+c/;
 const template = `number is = ${h} end`;

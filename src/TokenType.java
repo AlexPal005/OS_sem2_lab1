@@ -5,6 +5,7 @@ public enum TokenType {
 
     NumberLiteral("NumberLiteral"),
     BigIntLiteral("BigIntLiteral"),
+    NullishCoalescing("NullishCoalescing"),
 
 
     StringLiteral("StringLiteral"),
