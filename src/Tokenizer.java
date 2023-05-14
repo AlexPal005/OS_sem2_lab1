@@ -75,15 +75,24 @@ public class Tokenizer {
 
             //check string literal
             if (code.charAt(i) == '"') {
-                checkStringLiteral('"');
+                if (!checkStringLiteral('"')) {
+                    writeInFile();
+                    return;
+                }
                 i--;
                 continue;
             } else if (code.charAt(i) == '\'') {
-                checkStringLiteral('\'');
+                if (!checkStringLiteral('\'')) {
+                    writeInFile();
+                    return;
+                }
                 i--;
                 continue;
             } else if (code.charAt(i) == '`') {
-                checkStringLiteral('`');
+                if (!checkStringLiteral('`')) {
+                    writeInFile();
+                    return;
+                }
                 i--;
                 continue;
             }
@@ -171,7 +180,7 @@ public class Tokenizer {
         } else return null;
     }
 
-    private void checkStringLiteral(char mark) {
+    private boolean checkStringLiteral(char mark) {
         StringBuilder stringValue = new StringBuilder();
         do {
             if (mark == '`' && code.charAt(i) == '$' && code.charAt(i + 1) == '{') {
@@ -184,16 +193,16 @@ public class Tokenizer {
                 } while (code.charAt(i) != '}');
                 tokens.add(new Token(TokenType.TemplateLiteral, template.toString()));
                 i++;
-                if (i == code.length()) {
+                if (code.charAt(i) == '\n') {
                     tokens.add(new Token(TokenType.Error, "Unfinished string literal"));
-                    return;
+                    return false;
                 }
             }
             stringValue.append(code.charAt(i));
             i++;
-            if (i == code.length()) {
+            if (code.charAt(i) == '\n') {
                 tokens.add(new Token(TokenType.Error, "Unfinished string literal"));
-                return;
+                return false;
             }
         } while (code.charAt(i) != mark);
 
@@ -201,7 +210,7 @@ public class Tokenizer {
         i++;
 
         tokens.add(new Token(TokenType.StringLiteral, stringValue.toString()));
-
+        return true;
     }
 
     private Token checkKeyWord() {

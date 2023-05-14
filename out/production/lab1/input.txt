@@ -1,4 +1,4 @@
-const string = "hello;
+const string = "hello\n" + "frere";
 const regex = /ab+c/;
 const template = `number is = ${h} end`;
 const t = 5/(-2);
@@ -12,7 +12,7 @@ const res = obj[hello];
 const arrowFunction = (...value) => {
     let h = -5;
 }
-/*ch
+/*ch*/
 let l = "string"&&value1;
 const b1 = 5.3 >4.5;
 const b2 = "hello" > "hello2";
