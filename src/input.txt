@@ -1,20 +1,22 @@
+const string = "hello;
+const regex = /ab+c/;
+const template = `number is = ${h} end`;
+const t = 5/(-2);
+let h = -10 - ( -    5n);
 const $u4dfs += 2;
 const v = 5++;
-let h = -10 - ( - 5);
 // main code
-/*check multiline comments*/
-
 console.log("hello world");
 const f = ...value;
 const res = obj[hello];
 const arrowFunction = (...value) => {
     let h = -5;
 }
+/*ch
 let l = "string"&&value1;
 const b1 = 5.3 >4.5;
 const b2 = "hello" > "hello2";
 const value1=314;
-const string = "hello";
 let string1 = 'good';
 let a = 5.45435;
 let logicalOp = value1 && string1;

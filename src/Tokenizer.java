@@ -47,7 +47,11 @@ public class Tokenizer {
             if (code.charAt(i) == ' ') {
                 continue;
             }
-            skipComments();
+            if (!skipComments()) {
+                writeInFile();
+                return;
+            }
+
             //skip \n
             if (code.charAt(i) == '\n') {
                 continue;
@@ -68,7 +72,6 @@ public class Tokenizer {
                 i--;
                 continue;
             }
-            checkSpecialTokens();
 
             //check string literal
             if (code.charAt(i) == '"') {
@@ -79,7 +82,19 @@ public class Tokenizer {
                 checkStringLiteral('\'');
                 i--;
                 continue;
+            } else if (code.charAt(i) == '`') {
+                checkStringLiteral('`');
+                i--;
+                continue;
             }
+
+            if (code.charAt(i) == '/' && Character.isLetter(code.charAt(i + 1))) {
+                checkRegularExpression();
+                i--;
+                continue;
+            }
+            checkSpecialTokens();
+
 
             // check keywords
             Token token1 = checkKeyWord();
@@ -89,6 +104,7 @@ public class Tokenizer {
         }
         writeInFile();
     }
+
 
     private void writeInFile() {
         try {
@@ -107,7 +123,20 @@ public class Tokenizer {
         }
     }
 
-    private void skipComments() {
+    private void checkRegularExpression() {
+        StringBuilder regex = new StringBuilder();
+        do {
+            regex.append(code.charAt(i));
+            i++;
+        } while (code.charAt(i) != '/');
+
+        regex.append(code.charAt(i));
+        i++;
+
+        tokens.add(new Token(TokenType.RegularExpressionLiteral, regex.toString()));
+    }
+
+    private boolean skipComments() {
         //skip comments
         if (code.charAt(i) == '/' && code.charAt(i + 1) == '/') {
             while (code.charAt(i) != '\n') {
@@ -117,11 +146,16 @@ public class Tokenizer {
         }
         if (code.charAt(i) == '/' && code.charAt(i + 1) == '*') {
             i = i + 2;
-            while (code.charAt(i) != '*' && code.charAt(i + 1) != '/') {
+            while (code.charAt(i) != '*' || code.charAt(i + 1) != '/') {
                 i++;
+                if (i == code.length()) {
+                    tokens.add(new Token(TokenType.Error, "Unfinished comment"));
+                    return false;
+                }
             }
             i = i + 2;
         }
+        return true;
     }
 
     private Token checkSingleCharToken() {
@@ -140,8 +174,27 @@ public class Tokenizer {
     private void checkStringLiteral(char mark) {
         StringBuilder stringValue = new StringBuilder();
         do {
+            if (mark == '`' && code.charAt(i) == '$' && code.charAt(i + 1) == '{') {
+
+                StringBuilder template = new StringBuilder();
+                template.append(code.charAt(i));
+                do {
+                    i++;
+                    template.append(code.charAt(i));
+                } while (code.charAt(i) != '}');
+                tokens.add(new Token(TokenType.TemplateLiteral, template.toString()));
+                i++;
+                if (i == code.length()) {
+                    tokens.add(new Token(TokenType.Error, "Unfinished string literal"));
+                    return;
+                }
+            }
             stringValue.append(code.charAt(i));
             i++;
+            if (i == code.length()) {
+                tokens.add(new Token(TokenType.Error, "Unfinished string literal"));
+                return;
+            }
         } while (code.charAt(i) != mark);
 
         stringValue.append(code.charAt(i));
@@ -189,9 +242,13 @@ public class Tokenizer {
         if (code.charAt(i) == '-') {
             number.append(code.charAt(i));
             i++;
+            while (code.charAt(i) == ' ') {
+                i++;
+            }
         }
-        while (code.charAt(i) != '=' && code.charAt(i) != '+'
-                && code.charAt(i) != '-' && code.charAt(i) != ' ' && !punctuators.contains(code.charAt(i))) {
+        while (code.charAt(i) != '=' && !arithmeticOperators.contains(code.charAt(i))
+                && code.charAt(i) != ' '
+                && !punctuators.contains(code.charAt(i))) {
 
             number.append(code.charAt(i));
             i++;
@@ -246,7 +303,7 @@ public class Tokenizer {
         } else if (operator.length() == 1 && arithmeticOperators.contains(operator.charAt(0))) {
 
             tokens.add(new Token(TokenType.ArithmeticOperator, "\"" + operator + "\""));
-            i = currIndex - 1;
+            i = currIndex;
 
         } else if (operator.length() != 0 && assignmentOperators.contains(operator.toString())) {
 
