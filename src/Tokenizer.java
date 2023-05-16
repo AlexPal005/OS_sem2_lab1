@@ -58,7 +58,7 @@ public class Tokenizer {
             }
 
             // check single char token
-            Token token = checkSingleCharToken();
+            Token token = checkPunctuatorsAndSpread();
             if (token != null) {
                 tokens.add(token);
                 continue;
@@ -105,9 +105,8 @@ public class Tokenizer {
             }
             checkSpecialTokens();
 
-
             // check keywords
-            Token token1 = checkKeyWord();
+            Token token1 = checkKeyWordsBoolIdentifier();
             if (token1 != null) {
                 tokens.add(token1);
             }
@@ -115,8 +114,6 @@ public class Tokenizer {
         }
         writeInFile();
     }
-
-
     private void writeInFile() {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("src/result.txt"));
@@ -169,7 +166,7 @@ public class Tokenizer {
         return true;
     }
 
-    private Token checkSingleCharToken() {
+    private Token checkPunctuatorsAndSpread() {
         if (punctuators.contains(code.charAt(i))) {
             return new Token(TokenType.Punctuator, "\"" + code.charAt(i) + "\"");
         } else if (code.charAt(i) == '.') {
@@ -215,7 +212,7 @@ public class Tokenizer {
         return false;
     }
 
-    private Token checkKeyWord() {
+    private Token checkKeyWordsBoolIdentifier() {
         StringBuilder currWord = new StringBuilder();
         while (code.charAt(i) != '=' && code.charAt(i) != '+' && code.charAt(i) != '-' && code.charAt(i) != ' '
                 && code.charAt(i) != '\n' && code.charAt(i) != '\t' && !punctuators.contains(code.charAt(i))

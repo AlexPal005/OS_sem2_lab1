@@ -29,7 +29,6 @@ public enum TokenType {
     RegularExpressionLiteral("RegularExpressionLiteral"),
     TemplateLiteral("TemplateLiteral"),
 
-    None("None"),
     Error("Error");
 
     private final String tokenValue;
